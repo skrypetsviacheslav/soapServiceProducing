@@ -1,7 +1,7 @@
 package com.example.service;
 
-import com.rest.service.entity.Activity;
-import com.rest.service.repository.ActivityRepository;
+import com.example.entity.Activity;
+import com.example.repository.ActivityRepository;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
