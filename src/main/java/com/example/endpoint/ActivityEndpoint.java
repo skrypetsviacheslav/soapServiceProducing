@@ -5,13 +5,13 @@ import com.example.mapper.ActivityMapper;
 import com.example.service.ActivityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
 import org.springframework.ws.server.endpoint.annotation.RequestPayload;
 import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -20,10 +20,11 @@ public class ActivityEndpoint {
     private static final Logger log = LoggerFactory.getLogger(ActivityEndpoint.class);
 
     private static final String NAMESPACE_URL = "http://soapservice.activity";
+    private final ActivityMapper mapper = ActivityMapper.INSTANCE;
+    private final ObjectFactory factory = new ObjectFactory();
 
     private ActivityService activityService;
 
-    @Autowired
     public ActivityEndpoint(ActivityService activityService) {
         this.activityService = activityService;
     }
@@ -31,70 +32,70 @@ public class ActivityEndpoint {
     @PayloadRoot(namespace = NAMESPACE_URL, localPart = "getActivitiesRequest")
     @ResponsePayload
     public GetActivitiesResponse getActivities() {
-        ActivityMapper mapper = ActivityMapper.INSTANCE;
+        Function<List<ActivityDto>, GetActivitiesResponse> GetActivitiesResponseWithListOfActivityDto = (List<ActivityDto> activityDtos) -> {
+            GetActivitiesResponse response = new GetActivitiesResponse();
+            response.getActivity().addAll(activityDtos);
+            return response;
+        };
 
         return StreamSupport.stream(activityService.getAllActivities().spliterator(), false)
                 .map(mapper::activityToActivityDto)
                 .collect(Collectors.collectingAndThen(
                         Collectors.toList(),
-                        (List<ActivityDto> activityDtos) -> {
-                            GetActivitiesResponse response = new GetActivitiesResponse();
-                            response.getActivity().addAll(activityDtos);
-                            return response;
-                        }));
+                        GetActivitiesResponseWithListOfActivityDto));
     }
 
     @PayloadRoot(namespace = NAMESPACE_URL, localPart = "getActivityRequest")
     @ResponsePayload
     public GetActivityResponse getActivity(@RequestPayload GetActivityRequest request) {
-        ActivityMapper mapper = ActivityMapper.INSTANCE;
+        Function<ActivityDto, GetActivityResponse> GetActivityResponseWithActivityDto = activityDto -> {
+            GetActivityResponse response = new GetActivityResponse();
+            response.setActivity(activityDto);
+            return response;
+        };
 
         return activityService.getActivityById(request.getId())
                 .map(mapper::activityToActivityDto)
-                .map(x -> {
-                    GetActivityResponse response = new GetActivityResponse();
-                    response.setActivity(x);
-                    return response;
-                })
+                .map(GetActivityResponseWithActivityDto)
                 .orElseGet(GetActivityResponse::new);
     }
 
     @PayloadRoot(namespace = NAMESPACE_URL, localPart = "postActivityRequest")
     @ResponsePayload
     public PostActivityResponse postActivity(@RequestPayload PostActivityRequest request) {
-        ActivityMapper mapper = ActivityMapper.INSTANCE;
+        Function<ActivityDto, PostActivityResponse> postActivityResponseWithActivityDto = activityDto -> {
+            PostActivityResponse response = new PostActivityResponse();
+            response.setActivity(activityDto);
+            return response;
+        };
+
         return activityService.createActivity(mapper.activityDtoToActivity(request.getActivity()))
                 .map(mapper::activityToActivityDto)
-                .map(x -> {
-                    PostActivityResponse response = new PostActivityResponse();
-                    response.setActivity(x);
-                    return response;
-                })
+                .map(postActivityResponseWithActivityDto)
                 .orElseGet(PostActivityResponse::new);
     }
 
     @PayloadRoot(namespace = NAMESPACE_URL, localPart = "putActivityRequest")
     @ResponsePayload
     public PutActivityResponse putActivity(@RequestPayload PutActivityRequest request) {
-        ActivityMapper mapper = ActivityMapper.INSTANCE;
+        Function<ActivityDto, PutActivityResponse> putActivityResponseWithActivityDto = activityDto -> {
+            PutActivityResponse response = factory.createPutActivityResponse();
+            response.setActivity(activityDto);
+            return response;
+        };
+
         return activityService.updateActivity(request.getId(), mapper.activityDtoToActivity(request.getActivity()))
                 .map(mapper::activityToActivityDto)
-                .map(x -> {
-                    PutActivityResponse response = new PutActivityResponse();
-                    response.setActivity(x);
-                    return response;
-                })
+                .map(putActivityResponseWithActivityDto)
                 .orElseGet(PutActivityResponse::new);
     }
 
     @PayloadRoot(namespace = NAMESPACE_URL, localPart = "deleteActivityRequest")
     @ResponsePayload
     public DeleteActivityResponse deleteActivity(@RequestPayload DeleteActivityRequest request) {
-        ActivityMapper mapper = ActivityMapper.INSTANCE;
-
         activityService.deleteActivity(request.getId());
 
-        DeleteActivityResponse response = new DeleteActivityResponse();
+        DeleteActivityResponse response = factory.createDeleteActivityResponse();
         response.setDeleted(true);
         return response;
     }

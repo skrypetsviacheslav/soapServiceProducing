@@ -37,4 +37,5 @@ public class WebServiceConfig extends WsConfigurerAdapter {
     public XsdSchema activitiesSchema() {
         return new SimpleXsdSchema(new ClassPathResource("schema/activities.xsd"));
     }
+
 }
