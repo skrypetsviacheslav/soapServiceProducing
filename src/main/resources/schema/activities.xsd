@@ -1,0 +1,95 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:act="http://soapservice.activity"
+           elementFormDefault="qualified"
+           targetNamespace="http://soapservice.activity">
+
+    <xs:element name="getActivitiesRequest">
+    </xs:element>
+
+    <xs:element name="getActivitiesResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="act:activityDto" name="activity" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getActivityRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:int" name="id"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getActivityResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="act:activityDto" name="activity"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postActivityRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="act:activityDto" name="activity"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="postActivityResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="act:activityDto" name="activity"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="putActivityRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:int" name="id"/>
+                <xs:element type="act:activityDto" name="activity"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="putActivityResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="act:activityDto" name="activity"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="deleteActivityRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:int" name="id"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="deleteActivityResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element type="xs:boolean" name="deleted"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="activityDto">
+        <xs:sequence>
+            <xs:element type="xs:int" name="id"/>
+            <xs:element type="xs:string" name="name"/>
+            <xs:element type="xs:string" name="description"/>
+            <xs:element type="xs:string" name="owner"/>
+            <xs:element type="xs:dateTime" name="startDateTime"/>
+            <xs:element type="xs:dateTime" name="endDateTime"/>
+            <xs:element type="xs:boolean" name="active"/>
+            <xs:element type="xs:boolean" name="closed"/>
+        </xs:sequence>
+    </xs:complexType>
+
+</xs:schema>
